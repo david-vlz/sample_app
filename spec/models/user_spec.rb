@@ -8,13 +8,18 @@
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
 #  password_digest :string(255)
-#
-
 require 'spec_helper'
 
 describe User do
 
-	before { @user = User.new(name: "Example User", email: "user@example.com") }
+	before { 
+		@user = User.new(
+			name: "Example User", 
+			email: "user@example.com",
+			password: "swordfish234!%&/",
+			password_combination: "swordfish234!%&/"
+		) 
+	}
 	subject { @user }
 	
 	it { should respond_to(:email) }
@@ -22,6 +27,8 @@ describe User do
 	it { should respond_to(:created_at) }
 	it { should respond_to(:updated_at) }
 	it { should respond_to(:password_digest) }
+	it { should respond_to(:password) }
+	it { should respond_to(:passwor_confirmation) }
 	
 	it { should be_valid }
 	
@@ -29,10 +36,12 @@ describe User do
 		before { @user.name =" " }
 		it { should_not be_valid }
 	end
+	
 	describe "when name is too long" do
 		before { @user.name = "a" * 51 }
 		it { should_not be_valid }
 	end
+	
 	describe "when name is too short" do
 		before { @user.name = "ab" }
 		it { should_not be_valid }
@@ -69,6 +78,21 @@ describe User do
 			user_with_same_email.email = @user.email.upcase
 			user_with_same_email.save
 		end
+		it { should_not be_valid }
+	end
+	
+	describe "when password is not present" do
+		before { @user.password = @user.password_confirmation = " "; }
+		it { should_not be_valid }
+	end
+	
+	describe "when pasword and confirmation do not match" do
+		before { @user.password_confirmation = @user.password[0...-1] }
+		it { should_not be_valid }
+	end
+	
+	describe "when password confirmation is nil" do
+		before { @user.password_confirmation = nil }
 		it { should_not be_valid }
 	end
 	
